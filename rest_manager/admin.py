@@ -23,7 +23,7 @@ class HttpRequestAdmin(admin.ModelAdmin):
         :param change: whether the form changed
         :type change: bool
         :return: True if the request can be scheduled, False otherwise.
-        :rtype: bool
+        :type: bool
         """
         return change or obj.status == REQUEST_STATUS_PENDING
 
@@ -55,7 +55,7 @@ class HttpRequestAdmin(admin.ModelAdmin):
 @admin.register(HttpResponse)
 class HttpResponseAdmin(admin.ModelAdmin):
     list_filter = ('status_code', )
-    list_display = ('id', 'request', 'status_code', )
+    list_display = ('id', 'request', 'status_code', 'created', 'modified', )
     list_display_links = ('id', 'request', )
     readonly_fields = ('status_code', 'response', 'request', )
 

@@ -10,12 +10,36 @@ from rest_manager.models import (HTTP_METHOD_DELETE, HTTP_METHOD_GET,
 logger = logging.getLogger(__name__)
 
 
-REQUESTS_METHOD = {
-    HTTP_METHOD_GET: requests.get,
-    HTTP_METHOD_POST: requests.post,
-    HTTP_METHOD_DELETE: requests.delete,
-    HTTP_METHOD_PUT: requests.put,
-}
+def get_method(method):
+    """Get the requests function for the method."""
+    return {
+        HTTP_METHOD_GET: requests.get,
+        HTTP_METHOD_POST: requests.post,
+        HTTP_METHOD_DELETE: requests.delete,
+        HTTP_METHOD_PUT: requests.put,
+    }.get(method)
+
+
+def get_result(request_obj):
+    """Make the request and get the result."""
+    request_method = get_method(request_obj.method)
+    if not request_method:
+        logger.error(
+            f'Invalid method {request_method} for request {request_obj}'
+        )
+        request_obj.status = REQUEST_STATUS_FAILED
+        return
+
+    kwargs = {}
+    if request_obj.payload:
+        kwargs['data'] = request_obj.payload
+    return request_method(
+        request_obj.url,
+        headers={
+            'content-type': request_obj.content_type,
+        },
+        **kwargs
+    )
 
 
 def execute_request(request_id):
@@ -27,38 +51,24 @@ def execute_request(request_id):
     try:
         request_obj = HttpRequest.objects.get(id=request_id)
     except HttpRequest.DoesNotExist:
-        logger.error(f'Request with {request_id}')
-        return
-
-    request_method = REQUESTS_METHOD.get(request_obj.method)
-    if not request_method:
         logger.error(
-            f'Invalid method {request_method} for request {request_obj}'
+            f'Request with {request_id} does not exist.'
         )
-        request_obj.status = REQUEST_STATUS_FAILED
         return
 
-    if request_obj.payload is not None:
-        kwargs = {
-            'data': request_obj.payload,
-        }
-    result = request_method(
-        request_obj.url,
-        headers={
-            'content-type': request_obj.content_type,
-        },
-        **kwargs
-    )
-
+    result = get_result(request_obj)
     result_obj = HttpResponse(
         request=request_obj,
-        status_code=result.status_code,
     )
-    if result.status_code == 200:
-        request_obj.status = REQUEST_STATUS_COMPLETED
-        result_obj.response = result.json()
+    if result:
+        if result.status_code == 200:
+            request_obj.status = REQUEST_STATUS_COMPLETED
+            result_obj.response = result.json()
+        else:
+            request_obj.status = REQUEST_STATUS_FAILED
+        result_obj.status_code = result.status_code
     else:
         request_obj.status = REQUEST_STATUS_FAILED
 
-    request_obj.save(update_fields=['status'])
+    request_obj.save(update_fields=['status', 'modified'])
     result_obj.save()
