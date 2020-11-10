@@ -9,3 +9,4 @@ omit =
     *wsgi.py
     manage.py
     *__init__.py
+relative_files = True
