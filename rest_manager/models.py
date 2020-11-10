@@ -78,8 +78,8 @@ class HttpResponse(TimeStampedModel):
         editable=False,
     )
     status_code = models.IntegerField(
-        null=False,
-        blank=False,
+        null=True,
+        blank=True,
         editable=False,
         help_text='HTTP response status. Eg, 200 or 404'
     )
