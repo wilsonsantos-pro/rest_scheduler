@@ -55,7 +55,7 @@ class HttpRequestAdmin(admin.ModelAdmin):
 @admin.register(HttpResponse)
 class HttpResponseAdmin(admin.ModelAdmin):
     list_filter = ('status_code', )
-    list_display = ('id', 'request', 'status_code', )
+    list_display = ('id', 'request', 'status_code', 'created', 'modified', )
     list_display_links = ('id', 'request', )
     readonly_fields = ('status_code', 'response', 'request', )
 

@@ -70,5 +70,5 @@ def execute_request(request_id):
     else:
         request_obj.status = REQUEST_STATUS_FAILED
 
-    request_obj.save(update_fields=['status'])
+    request_obj.save(update_fields=['status', 'modified'])
     result_obj.save()
