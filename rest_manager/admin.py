@@ -23,7 +23,7 @@ class HttpRequestAdmin(admin.ModelAdmin):
         :param change: whether the form changed
         :type change: bool
         :return: True if the request can be scheduled, False otherwise.
-        :rtype: bool
+        :type: bool
         """
         return change or obj.status == REQUEST_STATUS_PENDING
 
