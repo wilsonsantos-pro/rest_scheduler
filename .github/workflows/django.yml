@@ -27,5 +27,17 @@ jobs:
         pip install -r requirements-dev.txt
     - name: Run Tests
       run: |
-        python manage.py test --settings=rest_scheduler.settings.test
+        coverage run --source='.' manage.py test --settings=rest_scheduler.settings.test
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel: true
 
+  coveralls_finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel-finished: true
