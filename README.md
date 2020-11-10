@@ -1,7 +1,7 @@
 # REST request scheduler
 
 ![Django CI](https://github.com/wilsonsantos-pro/rest_scheduler/workflows/Django%20CI/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/wilsonsantos-pro/rest_scheduler/badge.svg?branch=main)](https://coveralls.io/github/wilsonsantos-pro/rest_scheduler?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/wilsonsantos-pro/rest_scheduler/badge.svg?branch=main)](https://coveralls.io/github/wilsonsantos-pro/rest_scheduler?branch=main&service=github)
 
 This application allows to make REST requests, either immediately or schedule it
 for later execution.
