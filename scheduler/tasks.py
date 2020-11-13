@@ -1,3 +1,4 @@
+import json
 import logging
 
 import requests
@@ -37,6 +38,7 @@ def get_result(request_obj):
         request_obj.url,
         headers={
             'content-type': request_obj.content_type,
+            'Accept': request_obj.content_type,
         },
         **kwargs
     )
@@ -63,7 +65,13 @@ def execute_request(request_id):
     if result:
         if result.status_code == 200:
             request_obj.status = REQUEST_STATUS_COMPLETED
-            result_obj.response = result.json()
+            try:
+                result_obj.response = result.json()
+            except json.JSONDecodeError:
+                logger.exception(
+                    f'Failed to read json response for {request_obj}')
+                request_obj.status = REQUEST_STATUS_FAILED
+                result_obj.response = result.text
         else:
             request_obj.status = REQUEST_STATUS_FAILED
         result_obj.status_code = result.status_code

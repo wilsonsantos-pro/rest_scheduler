@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch, PropertyMock
 from django.test import TestCase
 from mixer.backend.django import mixer
@@ -76,4 +77,24 @@ class ExecuteRequestTest(TestCase):
         execute_request(obj_id)
         self.assertFalse(models_rm.HttpResponse.objects.filter(
             request__id=obj_id
+        ).exists())
+
+    def test_execute_request_not_json(self, get_result):
+        not_json = 'not json'
+        type(get_result.return_value).status_code = PropertyMock(
+            return_value=200)
+        type(get_result.return_value).json = PropertyMock(
+            side_effect=json.JSONDecodeError('', '', 0))
+        type(get_result.return_value).text = PropertyMock(
+            return_value=not_json
+        )
+        obj = mixer.blend(
+            'rest_manager.HttpRequest',
+            status=models_rm.REQUEST_STATUS_PENDING
+        )
+        execute_request(obj.id)
+        obj.refresh_from_db()
+        self.assertEqual(obj.status, models_rm.REQUEST_STATUS_FAILED)
+        self.assertTrue(models_rm.HttpResponse.objects.filter(
+            request__id=obj.id, response=not_json
         ).exists())
